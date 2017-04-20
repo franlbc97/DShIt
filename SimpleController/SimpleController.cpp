@@ -17,7 +17,7 @@
 //-----------------------------------------------------------------------------
 // Function-prototypes
 //-----------------------------------------------------------------------------
-LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 HRESULT UpdateControllerState();
 void RenderFrame();
 void moveRatonGamepad(HWND hWnd);
@@ -34,12 +34,12 @@ void moveRatonGamepad(HWND hWnd);
 
 struct CONTROLER_STATE
 {
-    XINPUT_STATE state;
-    bool bConnected;
+	XINPUT_STATE state;
+	bool bConnected;
 };
 
 CONTROLER_STATE g_Controllers[MAX_CONTROLLERS];
-WCHAR g_szMessage[4][1024] = {0};
+WCHAR g_szMessage[4][1024] = { 0 };
 HWND    g_hWnd;
 bool    g_bDeadZoneOn = true;
 bool	changed = false;
@@ -49,160 +49,161 @@ bool	changed = false;
 // Desc: Entry point for the application.  Since we use a simple dialog for 
 //       user interaction we don't need to pump messages.
 //-----------------------------------------------------------------------------
-int APIENTRY wWinMain( HINSTANCE hInst, HINSTANCE, LPWSTR, int )
+int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int)
 {
-    // Register the window class
-    HBRUSH hBrush = CreateSolidBrush( 0xFF0000 );
-    WNDCLASSEX wc =
-    {
-        sizeof( WNDCLASSEX ), 0, MsgProc, 0L, 0L, hInst, NULL,
-        LoadCursor( NULL, IDC_ARROW ), hBrush,
-        NULL, L"XInputSample", NULL
-    };
-    RegisterClassEx( &wc );
+	// Register the window class
+	HBRUSH hBrush = CreateSolidBrush(0xFF0000);
+	WNDCLASSEX wc =
+	{
+		sizeof(WNDCLASSEX), 0, MsgProc, 0L, 0L, hInst, NULL,
+		LoadCursor(NULL, IDC_ARROW), hBrush,
+		NULL, L"XInputSample", NULL
+	};
+	RegisterClassEx(&wc);
 
-    // Create the application's window
-    g_hWnd = CreateWindow( L"XInputSample", L"XInput Sample: SimpleController",
-                           WS_OVERLAPPED | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-                           CW_USEDEFAULT, CW_USEDEFAULT, 600, 600,
-                           NULL, NULL, hInst, NULL );
+	// Create the application's window
+	g_hWnd = CreateWindow(L"XInputSample", L"XInput Sample: SimpleController",
+		WS_OVERLAPPED | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+		CW_USEDEFAULT, CW_USEDEFAULT, 600, 600,
+		NULL, NULL, hInst, NULL);
 
-    // Init state
-    ZeroMemory( g_Controllers, sizeof( CONTROLER_STATE ) * MAX_CONTROLLERS );
-	
-    // Enter the message loop
-    bool bGotMsg;
-    MSG msg;
-    msg.message = WM_NULL;
+	// Init state
+	ZeroMemory(g_Controllers, sizeof(CONTROLER_STATE) * MAX_CONTROLLERS);
 
-    while( WM_QUIT != msg.message )
-    {
-        // Use PeekMessage() so we can use idle time to render the scene and call pEngine->DoWork()
-        bGotMsg = ( GetMessage( &msg, NULL, 0U, 0U ) != 0 );
+	// Enter the message loop
+	bool bGotMsg;
+	MSG msg;
+	msg.message = WM_NULL;
 
-        if(bGotMsg )
-        {
-            // Translate and dispatch the message
-            TranslateMessage( &msg );
-            DispatchMessage( &msg );
-        }
-        else
-        {
-            //RenderFrame();
-        }
-    }
+	while (WM_QUIT != msg.message)
+	{
+		// Use PeekMessage() so we can use idle time to render the scene and call pEngine->DoWork()
+		bGotMsg = (GetMessage(&msg, NULL, 0U, 0U) != 0);
 
-    // Clean up 
-    UnregisterClass( L"XInputSample", NULL );
+		if (bGotMsg)
+		{
+			// Translate and dispatch the message
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		else
+		{
+			//RenderFrame();
+		}
+	}
 
-    return 0;
+	// Clean up 
+	UnregisterClass(L"XInputSample", NULL);
+
+	return 0;
 }
 
 
 //-----------------------------------------------------------------------------
 HRESULT UpdateControllerState()
 {
-    DWORD dwResult;
-    for( DWORD i = 0; i < MAX_CONTROLLERS; i++ )
-    {
-        // Simply get the state of the controller from XInput.
-        dwResult = XInputGetState( i, &g_Controllers[i].state );
+	DWORD dwResult;
+	for (DWORD i = 0; i < MAX_CONTROLLERS; i++)
+	{
+		// Simply get the state of the controller from XInput.
+		dwResult = XInputGetState(i, &g_Controllers[i].state);
+		
+		if (dwResult == ERROR_SUCCESS){
+			g_Controllers[i].bConnected = true;
+		}
+		else
+			g_Controllers[i].bConnected = false;
+	}
 
-        if( dwResult == ERROR_SUCCESS )
-            g_Controllers[i].bConnected = true;
-        else
-            g_Controllers[i].bConnected = false;
-    }
-
-    return S_OK;
+	return S_OK;
 }
 
 
 //-----------------------------------------------------------------------------
 void RenderFrame()
 {
-    bool bRepaint = false;
+	bool bRepaint = false;
 
-    WCHAR sz[4][1024];
-    for( DWORD i = 0; i < MAX_CONTROLLERS; i++ )
-    {
-        if( g_Controllers[i].bConnected )
-        {
-            WORD wButtons = g_Controllers[i].state.Gamepad.wButtons;
+	WCHAR sz[4][1024];
+	for (DWORD i = 0; i < MAX_CONTROLLERS; i++)
+	{
+		if (g_Controllers[i].bConnected)
+		{
+			WORD wButtons = g_Controllers[i].state.Gamepad.wButtons;
 
-            if( g_bDeadZoneOn )
-            {
-                // Zero value if thumbsticks are within the dead zone 
-                if( ( g_Controllers[i].state.Gamepad.sThumbLX < INPUT_DEADZONE &&
-                      g_Controllers[i].state.Gamepad.sThumbLX > -INPUT_DEADZONE ) &&
-                    ( g_Controllers[i].state.Gamepad.sThumbLY < INPUT_DEADZONE &&
-                      g_Controllers[i].state.Gamepad.sThumbLY > -INPUT_DEADZONE ) )
-                {
-                    g_Controllers[i].state.Gamepad.sThumbLX = 0;
-                    g_Controllers[i].state.Gamepad.sThumbLY = 0;
-                }
+			if (g_bDeadZoneOn)
+			{
+				// Zero value if thumbsticks are within the dead zone 
+				if ((g_Controllers[i].state.Gamepad.sThumbLX < INPUT_DEADZONE &&
+					g_Controllers[i].state.Gamepad.sThumbLX > -INPUT_DEADZONE) &&
+					(g_Controllers[i].state.Gamepad.sThumbLY < INPUT_DEADZONE &&
+					g_Controllers[i].state.Gamepad.sThumbLY > -INPUT_DEADZONE))
+				{
+					g_Controllers[i].state.Gamepad.sThumbLX = 0;
+					g_Controllers[i].state.Gamepad.sThumbLY = 0;
+				}
 
-                if( ( g_Controllers[i].state.Gamepad.sThumbRX < INPUT_DEADZONE &&
-                      g_Controllers[i].state.Gamepad.sThumbRX > -INPUT_DEADZONE ) &&
-                    ( g_Controllers[i].state.Gamepad.sThumbRY < INPUT_DEADZONE &&
-                      g_Controllers[i].state.Gamepad.sThumbRY > -INPUT_DEADZONE ) )
-                {
-                    g_Controllers[i].state.Gamepad.sThumbRX = 0;
-                    g_Controllers[i].state.Gamepad.sThumbRY = 0;
-                }
-            }
+				if ((g_Controllers[i].state.Gamepad.sThumbRX < INPUT_DEADZONE &&
+					g_Controllers[i].state.Gamepad.sThumbRX > -INPUT_DEADZONE) &&
+					(g_Controllers[i].state.Gamepad.sThumbRY < INPUT_DEADZONE &&
+					g_Controllers[i].state.Gamepad.sThumbRY > -INPUT_DEADZONE))
+				{
+					g_Controllers[i].state.Gamepad.sThumbRX = 0;
+					g_Controllers[i].state.Gamepad.sThumbRY = 0;
+				}
+			}
 
-            StringCchPrintfW( sz[i], 1024,
-                              L"Controller %d: Connected\n"
-                              L"  Buttons: %s%s%s%s%s%s%s%s%s%s%s%s%s%s\n"
-                              L"  Left Trigger: %d\n"
-                              L"  Right Trigger: %d\n"
-                              L"  Left Thumbstick: %d/%d\n"
-                              L"  Right Thumbstick: %d/%d", i,
-                              ( wButtons & XINPUT_GAMEPAD_DPAD_UP ) ? L"DPAD_UP " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_DPAD_DOWN ) ? L"DPAD_DOWN " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_DPAD_LEFT ) ? L"DPAD_LEFT " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_DPAD_RIGHT ) ? L"DPAD_RIGHT " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_START ) ? L"START " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_BACK ) ? L"BACK " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_LEFT_THUMB ) ? L"LEFT_THUMB " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_RIGHT_THUMB ) ? L"RIGHT_THUMB " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER ) ? L"LEFT_SHOULDER " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER ) ? L"RIGHT_SHOULDER " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_A ) ? L"A " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_B ) ? L"B " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_X ) ? L"X " : L"",
-                              ( wButtons & XINPUT_GAMEPAD_Y ) ? L"Y " : L"",
-                              g_Controllers[i].state.Gamepad.bLeftTrigger,
-                              g_Controllers[i].state.Gamepad.bRightTrigger,
-                              g_Controllers[i].state.Gamepad.sThumbLX,
-                              g_Controllers[i].state.Gamepad.sThumbLY,
-                              g_Controllers[i].state.Gamepad.sThumbRX,
-                              g_Controllers[i].state.Gamepad.sThumbRY );
-        }
-        else
-        {
-            StringCchPrintf( sz[i], 1024,
-                             L"Controller %d: Not connected", i );
-        }
+			StringCchPrintfW(sz[i], 1024,
+				L"Controller %d: Connected\n"
+				L"  Buttons: %s%s%s%s%s%s%s%s%s%s%s%s%s%s\n"
+				L"  Left Trigger: %d\n"
+				L"  Right Trigger: %d\n"
+				L"  Left Thumbstick: %d/%d\n"
+				L"  Right Thumbstick: %d/%d", i,
+				(wButtons & XINPUT_GAMEPAD_DPAD_UP) ? L"DPAD_UP " : L"",
+				(wButtons & XINPUT_GAMEPAD_DPAD_DOWN) ? L"DPAD_DOWN " : L"",
+				(wButtons & XINPUT_GAMEPAD_DPAD_LEFT) ? L"DPAD_LEFT " : L"",
+				(wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ? L"DPAD_RIGHT " : L"",
+				(wButtons & XINPUT_GAMEPAD_START) ? L"START " : L"",
+				(wButtons & XINPUT_GAMEPAD_BACK) ? L"BACK " : L"",
+				(wButtons & XINPUT_GAMEPAD_LEFT_THUMB) ? L"LEFT_THUMB " : L"",
+				(wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) ? L"RIGHT_THUMB " : L"",
+				(wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) ? L"LEFT_SHOULDER " : L"",
+				(wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) ? L"RIGHT_SHOULDER " : L"",
+				(wButtons & XINPUT_GAMEPAD_A) ? L"A " : L"",
+				(wButtons & XINPUT_GAMEPAD_B) ? L"B " : L"",
+				(wButtons & XINPUT_GAMEPAD_X) ? L"X " : L"",
+				(wButtons & XINPUT_GAMEPAD_Y) ? L"Y " : L"",
+				g_Controllers[i].state.Gamepad.bLeftTrigger,
+				g_Controllers[i].state.Gamepad.bRightTrigger,
+				g_Controllers[i].state.Gamepad.sThumbLX,
+				g_Controllers[i].state.Gamepad.sThumbLY,
+				g_Controllers[i].state.Gamepad.sThumbRX,
+				g_Controllers[i].state.Gamepad.sThumbRY);
+		}
+		else
+		{
+			StringCchPrintf(sz[i], 1024,
+				L"Controller %d: Not connected", i);
+		}
 
-        if( wcscmp( sz[i], g_szMessage[i] ) != 0 )
-        {
-            StringCchCopy( g_szMessage[i], 1024, sz[i] );
-            bRepaint = true;
-        }
-    }
+		if (wcscmp(sz[i], g_szMessage[i]) != 0)
+		{
+			StringCchCopy(g_szMessage[i], 1024, sz[i]);
+			bRepaint = true;
+		}
+	}
 
-    if( bRepaint )
-    {
-        // Repaint the window if needed 
-        InvalidateRect( g_hWnd, NULL, TRUE );
-        UpdateWindow( g_hWnd );
-    }
+	if (bRepaint)
+	{
+		// Repaint the window if needed 
+		InvalidateRect(g_hWnd, NULL, TRUE);
+		UpdateWindow(g_hWnd);
+	}
 
-    // This sample doesn't use Direct3D.  Instead, it just yields CPU time to other 
-    // apps but this is not typically done when rendering
-    Sleep( 10 );
+	// This sample doesn't use Direct3D.  Instead, it just yields CPU time to other 
+	// apps but this is not typically done when rendering
+	Sleep(10);
 }
 
 
@@ -284,36 +285,18 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 void moveRatonGamepad(HWND hWnd){
-	HCURSOR hCurs1, hCurs2;    // cursor handles 
+	// cursor handles 
 
 	POINT pt;   // cursor location  
-	RECT rc;                   // client area coordinates 
-	
-	if (g_Controllers[0].bConnected){
-		ScreenToClient(hWnd, &pt);
-		GetCursorPos(&pt);
-		pt.x += 1;
-		pt.y += 1;
-		GetClientRect(hWnd, &rc);
-		if (pt.x >= rc.right)
-		{
-			pt.x = rc.right - 1;
-		}
-		else
-		{
-			if (pt.x < rc.left)
-			{
-				pt.x = rc.left;
-			}
-		}
+	                  // client area coordinates 
 
-		if (pt.y >= rc.bottom)
-			pt.y = rc.bottom - 1;
-		else
-			if (pt.y < rc.top)
-				pt.y = rc.top;
-		ClientToScreen(hWnd, &pt);
+	if (g_Controllers[0].bConnected){
+		GetCursorPos(&pt);
+		pt.x += g_Controllers[0].state.Gamepad.sThumbLX / 2500;
+		pt.y += g_Controllers[0].state.Gamepad.sThumbLY / -2500;
 		SetCursorPos(pt.x, pt.y);
+		setc
+
 	}
 
 }
