@@ -13,7 +13,6 @@
 #pragma warning( default : 4996 )
 #include "resource.h"
 
-
 //-----------------------------------------------------------------------------
 // Function-prototypes
 //-----------------------------------------------------------------------------
@@ -21,7 +20,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 HRESULT UpdateControllerState();
 void RenderFrame();
 void moveRatonGamepad(HWND hWnd);
-
+void controlRantonGamepad();
 
 //-----------------------------------------------------------------------------
 // Defines, constants, and global variables
@@ -35,7 +34,9 @@ void moveRatonGamepad(HWND hWnd);
 struct CONTROLER_STATE
 {
 	XINPUT_STATE state;
+	XINPUT_STATE previusState;
 	bool bConnected;
+	void saveLastState(){ previusState = state; };
 };
 
 CONTROLER_STATE g_Controllers[MAX_CONTROLLERS];
@@ -105,6 +106,7 @@ HRESULT UpdateControllerState()
 	DWORD dwResult;
 	for (DWORD i = 0; i < MAX_CONTROLLERS; i++)
 	{
+		g_Controllers[i].saveLastState();
 		// Simply get the state of the controller from XInput.
 		dwResult = XInputGetState(i, &g_Controllers[i].state);
 		
@@ -244,6 +246,7 @@ LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	case WM_TIMER:
 		UpdateControllerState();
 		moveRatonGamepad(hWnd);
+		controlRantonGamepad();
 		RenderFrame();
 		return 0;
 	case WM_KEYDOWN:
@@ -295,10 +298,87 @@ void moveRatonGamepad(HWND hWnd){
 		pt.x += g_Controllers[0].state.Gamepad.sThumbLX / 2500;
 		pt.y += g_Controllers[0].state.Gamepad.sThumbLY / -2500;
 		SetCursorPos(pt.x, pt.y);
-		setc
-
 	}
 
+}
+
+void controlRantonGamepad(){
+	/*
+	(wButtons & XINPUT_GAMEPAD_DPAD_UP)
+	(wButtons & XINPUT_GAMEPAD_DPAD_DOWN)
+	(wButtons & XINPUT_GAMEPAD_DPAD_LEFT)
+	(wButtons & XINPUT_GAMEPAD_DPAD_RIGHT)
+	(wButtons & XINPUT_GAMEPAD_START)
+	(wButtons & XINPUT_GAMEPAD_BACK)
+	(wButtons & XINPUT_GAMEPAD_LEFT_THUMB)
+	(wButtons & XINPUT_GAMEPAD_RIGHT_THUMB)
+	(wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) ? L"LEFT_SHOULDER " : L"",
+	(wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) ? L"RIGHT_SHOULDER " : L"",
+	(wButtons & XINPUT_GAMEPAD_A) ? L"A " : L"",
+	(wButtons & XINPUT_GAMEPAD_B) ? L"B " : L"",
+	(wButtons & XINPUT_GAMEPAD_X) ? L"X " : L"",
+	(wButtons & XINPUT_GAMEPAD_Y) ? L"Y " : L"",
+	*/
+	if (g_Controllers[0].bConnected)
+	{
+		WORD CURRENT = g_Controllers[0].state.Gamepad.wButtons;
+		WORD OLD = g_Controllers[0].previusState.Gamepad.wButtons;
+		POINT pt;
+		if (CURRENT&XINPUT_GAMEPAD_LEFT_SHOULDER)
+		{
+			switch (OLD)
+			{
+			case XINPUT_GAMEPAD_LEFT_SHOULDER:
+				mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, XBUTTON1, 0);
+				break;
+			case !XINPUT_GAMEPAD_LEFT_SHOULDER:
+				mouse_event(MOUSEEVENTF_XDOWN, 0, 0, XBUTTON1, 0);
+				break;
+			default:
+				break;
+			}
+		}
+		else{
+			switch (OLD)
+			{
+			case XINPUT_GAMEPAD_LEFT_SHOULDER:
+				mouse_event(MOUSEEVENTF_XUP, 0, 0, XBUTTON1, 0);
+				break;
+			case !XINPUT_GAMEPAD_LEFT_SHOULDER:
+				mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, XBUTTON1, 0);
+				break;
+			default:
+				break;
+			}
+		}
+		if (CURRENT&XINPUT_GAMEPAD_RIGHT_SHOULDER){
+			switch (OLD)
+			{
+			case XINPUT_GAMEPAD_RIGHT_SHOULDER:
+				mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, XBUTTON2, 0);
+				break;
+			case !XINPUT_GAMEPAD_RIGHT_SHOULDER:
+				mouse_event(MOUSEEVENTF_XDOWN, 0, 0, XBUTTON2, 0);
+				break;
+			default:
+				break;
+			}
+		}
+		else
+		{
+			switch (OLD)
+			{
+			case XINPUT_GAMEPAD_RIGHT_SHOULDER:
+				mouse_event(MOUSEEVENTF_XUP, 0, 0, XBUTTON2, 0);
+				break;
+			case !XINPUT_GAMEPAD_RIGHT_SHOULDER:
+				mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, XBUTTON2, 0);
+				break;
+			default:
+				break;
+			}
+		} 
+	}
 }
 
 
