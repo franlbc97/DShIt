@@ -18,6 +18,7 @@
     <ClCompile Include="BaseHID.cpp" />
     <ClCompile Include="HIDXbox.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="AppHID.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
