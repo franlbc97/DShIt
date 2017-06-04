@@ -11,7 +11,6 @@
 #include "HIDXbox.h"
 //USAMOS MANDO DE EQUISBOS, ASI QUE DEFINIMOS SUS TECLAS
 
-
 //Definicion de calbacs
 LRESULT WINAPI MsgProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -22,13 +21,16 @@ WCHAR g_szMessage[4][1024] = { 0 };
 
 
 void GeneraEventos(HIDXbox * Control);
+void GeneraEventos(HIDWii * Control);
+
 VOID CALLBACK  updateControllerState(){
 	controller.Actualiza();
-	GeneraEventos(&controller);
-}
-int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int)
-{
+	ShitMote.readController();
+	GeneraEventos(&ShitMote);
 
+}
+int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int){
+	
 	//Me daba problemas al convertir a (TIMERPROC), asi que el callback es llamado en case WM_TIMER
 	UINT_PTR timerControl = SetTimer(g_hWnd, 1, T, (TIMERPROC)updateControllerState);
 
@@ -237,4 +239,62 @@ void GeneraEventos(HIDXbox * Control) {
 	}
 	SetCursorPos(ptMouse.x, ptMouse.y);
 	Control->writeController();
+}
+
+void GeneraEventos(HIDWii * Control)
+{
+	POINT ptMouse;
+	GetCursorPos(&ptMouse);
+	if (Control->LJX() != 0) {
+		ptMouse.x += Control->LJX() * 15;
+	}
+	if (Control->LJY() != 0) {
+		ptMouse.y -= -Control->LJY() * 15;
+	}
+
+	
+	
+	if (Control->A_down())
+		mouse_event(MOUSEEVENTF_LEFTDOWN, ptMouse.x, ptMouse.y, 0, NULL);
+	if (Control->A_up())
+		mouse_event(MOUSEEVENTF_LEFTUP, ptMouse.x, ptMouse.y, 0, NULL);
+
+	if (Control->B_down())
+		mouse_event(MOUSEEVENTF_RIGHTDOWN, ptMouse.x, ptMouse.y, 0, NULL);
+	if (Control->B_up())
+		mouse_event(MOUSEEVENTF_RIGHTUP, ptMouse.x, ptMouse.y, 0, NULL);
+
+	if (Control->LEFT_down()) {
+		keybd_event(VK_LEFT, 0x18, NULL, NULL);
+	}
+	if (Control->LEFT_up()) {
+		keybd_event(VK_LEFT, 0x18, KEYEVENTF_KEYUP, NULL);
+	}
+	if (Control->RIGHT_down()) {
+		keybd_event(VK_RIGHT, 0x18, NULL, NULL);
+	}
+	if (Control->RIGHT_up()) {
+		keybd_event(VK_RIGHT, 0x18, KEYEVENTF_KEYUP, NULL);
+	}
+	if (Control->UP_down()) {
+		keybd_event(VK_UP, 0x18, NULL, NULL);
+	}
+	if (Control->UP_up()) {
+		keybd_event(VK_UP, 0x18, KEYEVENTF_KEYUP, NULL);
+	}
+	if (Control->DOWN_down()) {
+		keybd_event(VK_DOWN, 0x18, NULL, NULL);
+	}
+	if (Control->DOWN_up()) {
+		keybd_event(VK_DOWN, 0x18, KEYEVENTF_KEYUP, NULL);
+	}
+
+	if (Control->PLUS_down())
+		mouse_event(MOUSEEVENTF_WHEEL, ptMouse.x, ptMouse.y, 10, NULL);
+	if (Control->MINUS_down())
+		mouse_event(MOUSEEVENTF_WHEEL, ptMouse.x, ptMouse.y, -10, NULL);
+
+
+		
+	SetCursorPos(ptMouse.x, ptMouse.y);
 }

@@ -9,7 +9,7 @@ class BaseHID
 public:
 	BaseHID(float t) :tUpdate(t){};
 	~BaseHID(){};
-	
+
 	void Actualiza();
 	inline float LT() { return lTrigger; };
 	inline float RT(){ return rTrigger; };
@@ -30,11 +30,11 @@ protected:
 	WORD wButtons;
 	WORD wLastButtons;
 	WORD wButtonsDown, wButtonsUp;
-	//Definición de ejes de joysticks. Los usaremos en el intervalo [-1.0,1.0]
+	//Definiciï¿½n de ejes de joysticks. Los usaremos en el intervalo [-1.0,1.0]
 	float fThumbRX, fThumbRY, fThumbLX, fThumbLY;
 	float fThumbRXf, fThumbRYf, fThumbLXf, fThumbLYf;
 
-	//Definición de floats para los triggers. Intervalo [0.0, 1.0]	
+	//Definiciï¿½n de floats para los triggers. Intervalo [0.0, 1.0]
 	float rTrigger, lTrigger;
 	const float aTR = T / (0.1) + T;
 	float lMotor, rMotor;
@@ -47,4 +47,3 @@ protected:
 	float tUpdate;
 
 };
-

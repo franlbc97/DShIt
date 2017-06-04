@@ -3,8 +3,9 @@
 #include "HIDXbox.h"
 #include <commdlg.h>
 #include <basetsd.h>
+#include "HIDWii.h"
 
-
+HIDWii ShitMote(10);
 #define T 10   //ms para actualizar
 #define TARGET_XBOX360
 #ifdef TARGET_XBOX360

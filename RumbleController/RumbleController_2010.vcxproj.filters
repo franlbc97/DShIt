@@ -8,6 +8,9 @@
     <Filter Include="DXUT">
       <UniqueIdentifier>{a43c5c25-0e86-4a20-b64a-883785ff74fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="WiiUse">
+      <UniqueIdentifier>{7718554d-2bde-4c94-99e6-6bcb3330e9b8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="DXUT\Optional\directx.ico">
@@ -19,6 +22,10 @@
     <ClCompile Include="HIDXbox.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AppHID.cpp" />
+    <ClCompile Include="HIDWii.cpp" />
+    <ClCompile Include="WiiUse\wiiusecpp.cpp">
+      <Filter>WiiUse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
@@ -30,7 +37,20 @@
     <ClInclude Include="BaseHID.h" />
     <ClInclude Include="HIDXbox.h" />
     <ClInclude Include="AppHID.h" />
+    <ClInclude Include="HIDWii.h" />
+    <ClInclude Include="WiiUse\wiiuse.h">
+      <Filter>WiiUse</Filter>
+    </ClInclude>
+    <ClInclude Include="WiiUse\wiiuse_msvcstdint.h">
+      <Filter>WiiUse</Filter>
+    </ClInclude>
+    <ClInclude Include="WiiUse\wiiusecpp.h">
+      <Filter>WiiUse</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <Library Include="WiiUse\wiiuse.lib">
+      <Filter>WiiUse</Filter>
+    </Library>
   </ItemGroup>
 </Project>
