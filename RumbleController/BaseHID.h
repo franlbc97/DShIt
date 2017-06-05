@@ -1,5 +1,5 @@
 #pragma once
-#define T 0.3
+#define T 0.1
 
 
 
@@ -15,8 +15,8 @@ public:
 	inline float RT(){ return rTrigger; };
 	inline float RJXf(){ return fThumbRXf; };
 	inline float RJYf(){ return fThumbRYf; };
-	inline float LJX(){ return fThumbLX; };
-	inline float LJY(){ return fThumbLY; };
+	inline float LJX() { return (fThumbLX > T || fThumbLX < -T) ?fThumbLX:0; };
+	inline float LJY(){ return (fThumbLY>T||fThumbLY<-T)?  fThumbLY:0;};
 	void leftMotor(float aux){ lMotor = aux; };
 	void rightMotor(float aux){ rMotor = aux; };
 	bool BD(WORD button){ return (button & wButtonsDown); };

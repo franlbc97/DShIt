@@ -51,7 +51,8 @@ public:
 
 	virtual bool HOME_down() { return Wiimote->Buttons.isPressed(CButtons::BUTTON_HOME); }
 	virtual bool HOME_up() { return Wiimote->Buttons.isReleased(CButtons::BUTTON_HOME); }
-
+	
+	
 
 private:
 	CWii* Wii;
